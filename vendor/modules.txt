@@ -1,0 +1,10 @@
+# github.com/go-logr/logr v0.2.0
+## explicit; go 1.14
+github.com/go-logr/logr
+# k8s.io/gengo v0.0.0-20240911193312-2b36238f13e9
+## explicit; go 1.13
+k8s.io/gengo/parser
+k8s.io/gengo/types
+# k8s.io/klog/v2 v2.2.0
+## explicit; go 1.13
+k8s.io/klog/v2
