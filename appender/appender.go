@@ -89,7 +89,6 @@ func DeleteLastAppend(fileName string, typeName string, ifaceName string) error 
 			return err
 		}
 		file.Truncate(int64(buf.Len()))
-		fmt.Println(buf.String())
 	}
 	return nil
 }

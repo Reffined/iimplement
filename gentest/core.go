@@ -1,10 +1,14 @@
 package gentest
 
-//go:generate iimpl --relPath .. --iface IFoo --type Bar
+//go:generate iimpl --relPath .. --iface IBar --type Bar
 type Bar struct{}
 
-// +iipml:Bar:IFoo:begin
-func (b Bar) Foo(foo string, Boo int) (error, int) {
+// +iipml:Bar:IBar:begin
+func (b Bar) Boo() {
+	panic("to be implemented")
+}
+
+func (b Bar) Foo(foo string, Boo int) (int, error) {
 	panic("to be implemented")
 }
 
@@ -12,15 +16,15 @@ func (b Bar) Roo(Boo string) {
 	panic("to be implemented")
 }
 
-// +iipml:Bar:IFoo:end
+// +iipml:Bar:IBar:end
 
 type (
 	IFoo interface {
-		Foo(foo string, Boo int) (error, int)
+		Foo(foo string, Boo int) (int, error)
 		Roo(Boo string)
 	}
 	IBar interface {
 		IFoo
-		Bar()
+		Boo()
 	}
 )
