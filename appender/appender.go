@@ -6,9 +6,24 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strings"
+
+	"k8s.io/gengo/types"
 )
 
-func FindEndOfType(fileName string, t string) (int, error) {
+type Appender struct {
+	IfaceMethods      map[string]*types.Type
+	TargetTypeMethods map[string]string
+}
+
+func New(methods map[string]*types.Type, targetMeth map[string]string) *Appender {
+	a := &Appender{}
+	a.IfaceMethods = methods
+	a.TargetTypeMethods = targetMeth
+	return a
+}
+
+func (a *Appender) FindEndOfType(fileName string, t string) (int, error) {
 	pattern := fmt.Sprintf(`(?m)type (?<typeName>%s) struct[\w]?{[\s.\w]*(?<end>})`, t)
 	reg := regexp.MustCompile(pattern)
 	file, err := os.Open(fileName)
@@ -28,7 +43,7 @@ func FindEndOfType(fileName string, t string) (int, error) {
 	return insertPoint, nil
 }
 
-func Append(fileName string, txt []byte, at int, typeName string, ifaceName string) error {
+func (a *Appender) Append(fileName string, at int, typeName string, ifaceName string) error {
 	file, err := os.OpenFile(fileName, os.O_RDWR, 0666)
 	if err != nil {
 		return err
@@ -46,7 +61,43 @@ func Append(fileName string, txt []byte, at int, typeName string, ifaceName stri
 	buf.WriteRune('\n')
 	buf.WriteRune('\n')
 	buf.WriteString(fmt.Sprintf("// +iipml:%s:%s:begin\n", typeName, ifaceName))
-	buf.Write(txt)
+	txt := bytes.Buffer{}
+	for n, v := range a.IfaceMethods {
+		if tm, ok := a.TargetTypeMethods[n]; ok {
+			txt.Write([]byte(tm))
+			continue
+		}
+		toRunes := []rune(strings.ToLower(typeName))
+		recver := fmt.Sprintf("func(%s %s)%s", string(toRunes[0]), typeName, n)
+		args := strings.Builder{}
+		args.WriteRune('(')
+		for ii := 0; ii < len(v.Signature.ParameterNames); ii++ {
+			args.WriteString(v.Signature.ParameterNames[ii])
+			args.WriteString(" ")
+			args.WriteString(v.Signature.Parameters[ii].String())
+			if ii != len(v.Signature.ParameterNames)-1 {
+				args.WriteRune(',')
+			}
+		}
+		args.WriteString(")")
+		result := strings.Builder{}
+		resLen := len(v.Signature.Results)
+		if resLen == 1 {
+			result.WriteString(v.Signature.Results[0].Name.String())
+		} else if resLen > 1 {
+			result.WriteRune('(')
+			for ii := 0; ii < resLen; ii++ {
+				result.WriteString(v.Signature.Results[ii].String())
+				if ii != resLen-1 {
+					result.WriteRune(',')
+				}
+			}
+			result.WriteRune(')')
+		}
+
+		txt.WriteString(fmt.Sprintf("%s%s%s{\n  panic(\"to be implemented\")\n}\n", recver, args.String(), result.String()))
+	}
+
 	buf.WriteString(fmt.Sprintf("// +iipml:%s:%s:end\n", typeName, ifaceName))
 	buf.Write(after)
 	_, err = file.Seek(0, 0)
@@ -61,7 +112,7 @@ func Append(fileName string, txt []byte, at int, typeName string, ifaceName stri
 	return nil
 }
 
-func DeleteLastAppend(fileName string, typeName string, ifaceName string) error {
+func (a Appender) DeleteLastAppend(fileName string, typeName string, ifaceName string) error {
 	file, err := os.OpenFile(fileName, os.O_RDWR, 0666)
 	if err != nil {
 		return err

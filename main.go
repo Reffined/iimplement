@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Reffined/iimplement/appender"
 	"github.com/Reffined/iimplement/extractor"
 )
 
@@ -40,8 +39,7 @@ func main() {
 		println("go.mod not found")
 		return
 	}
-
-	ex := extractor.NewExtractor(root+"/gentest", t)
+	ex := extractor.NewExtractor(root+"/gentest", t, goFile)
 	i, ok := ex.Interfaces[iface]
 	if !ok {
 		fmt.Printf("iface %s not found\n", iface)
@@ -79,17 +77,5 @@ func main() {
 		}
 
 		txt.WriteString(fmt.Sprintf("%s%s%s{\n  panic(\"to be implemented\")\n}\n", recver, args.String(), result.String()))
-	}
-	err := appender.DeleteLastAppend(goFile, t, iface)
-	if err != nil {
-		panic(err)
-	}
-	n, err := appender.FindEndOfType(goFile, t)
-	if err != nil {
-		panic(err)
-	}
-	err = appender.Append(goFile, []byte(txt.String()), n, t, iface)
-	if err != nil {
-		panic(err)
 	}
 }
