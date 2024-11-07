@@ -66,7 +66,6 @@ outer:
 	for n, v := range a.IfaceMethods {
 		for _, brn := range a.TargetTypeMethods {
 			if strings.ReplaceAll(typeName, "*", "") == strings.ReplaceAll(brn[1], "*", "") && brn[2] == n {
-				fmt.Println(brn[0])
 				txt.WriteString(brn[0])
 				txt.WriteRune('\n')
 				continue outer
