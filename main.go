@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Reffined/iimplement/appender"
 	"github.com/Reffined/iimplement/extractor"
 )
 
@@ -26,7 +27,7 @@ func main() {
 		return
 	}
 
-	_, ok := os.LookupEnv("GOFILE")
+	goFile, ok := os.LookupEnv("GOFILE")
 	if !ok {
 		fmt.Println("GOFILE not found")
 		return
@@ -36,6 +37,12 @@ func main() {
 	if len(files) == 0 {
 		println("go.mod not found")
 		return
+	}
+
+	appender := appender.NewAppender()
+	err := appender.Append(goFile, "Bar")
+	if err != nil {
+		panic(err)
 	}
 	ex := extractor.NewExtractor(root + "/gentest")
 	i, ok := ex.Interfaces[iface]
