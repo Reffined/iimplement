@@ -1,11 +1,12 @@
 package gentest
 
-//go:generate iimpl --relPath ..
-type Foo struct{}
+//go:generate iimpl --relPath .. --iface IFoo --type Bar
+type Bar struct{}
 
 type (
 	IFoo interface {
-		Foo(foo string)
+		Foo(foo string, Boo int) (error, int)
+		Roo(Boo string)
 	}
 	IBar interface {
 		IFoo
