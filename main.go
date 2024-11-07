@@ -41,7 +41,7 @@ func main() {
 		return
 	}
 
-	ex := extractor.NewExtractor(root + "/gentest")
+	ex := extractor.NewExtractor(root+"/gentest", t)
 	i, ok := ex.Interfaces[iface]
 	if !ok {
 		fmt.Printf("iface %s not found\n", iface)
@@ -49,6 +49,7 @@ func main() {
 	}
 	txt := strings.Builder{}
 	for n, v := range i.Methods {
+
 		toRunes := []rune(strings.ToLower(t))
 		recver := fmt.Sprintf("func(%s %s)%s", string(toRunes[0]), t, n)
 		args := strings.Builder{}

@@ -9,9 +9,10 @@ type Extractor struct {
 	*parser.Builder
 	Universe   types.Universe
 	Interfaces map[string]*types.Type
+	TargetType *types.Type
 }
 
-func NewExtractor(root string) *Extractor {
+func NewExtractor(root string, targetType string) *Extractor {
 	ex := new(Extractor)
 	ex.Builder = parser.New()
 	ex.AddDirRecursive(root)
@@ -25,6 +26,11 @@ func NewExtractor(root string) *Extractor {
 		for k, ts := range i.Types {
 			if ts.Kind == "Interface" {
 				ex.Interfaces[k] = ts
+			}
+			if ts.Kind == "Struct" {
+				if ts.Name.Name == targetType {
+					ex.TargetType = ts
+				}
 			}
 		}
 	}
