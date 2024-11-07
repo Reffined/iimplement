@@ -79,10 +79,8 @@ func main() {
 
 		txt.WriteString(fmt.Sprintf("%s%s%s{\n  panic(\"to be implemented\")\n}\n", recver, args.String(), result.String()))
 	}
-	res, err := appender.Append(goFile, []byte(txt.String()), t)
+	err := appender.DeleteLastAppend(goFile, t, iface)
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(string(res))
 }
