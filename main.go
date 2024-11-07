@@ -43,9 +43,9 @@ func main() {
 		fmt.Printf("iface %s not found\n", iface)
 		return
 	}
-	for _, v := range i.Methods {
+	for n, v := range i.Methods {
 		toRunes := []rune(strings.ToLower(t))
-		recver := fmt.Sprintf("func(%s %s)", string(toRunes[0]), t)
+		recver := fmt.Sprintf("func(%s %s)%s", string(toRunes[0]), t, n)
 		args := strings.Builder{}
 		args.WriteRune('(')
 		for ii := 0; ii < len(v.Signature.ParameterNames); ii++ {
