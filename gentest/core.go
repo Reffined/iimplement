@@ -4,15 +4,15 @@ package gentest
 type Bar struct{}
 
 // +iipml:Bar:IBar:begin
+func (b Bar) Roo(Boo string) {
+	panic("to be implemented")
+}
+
 func (b Bar) Boo() {
 	panic("to be implemented")
 }
 
 func (b Bar) Foo(foo string, Boo int) (int, error) {
-	panic("to be implemented")
-}
-
-func (b Bar) Roo(Boo string) {
 	panic("to be implemented")
 }
 

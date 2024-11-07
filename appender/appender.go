@@ -13,10 +13,10 @@ import (
 
 type Appender struct {
 	IfaceMethods      map[string]*types.Type
-	TargetTypeMethods map[string]string
+	TargetTypeMethods [][]string
 }
 
-func New(methods map[string]*types.Type, targetMeth map[string]string) *Appender {
+func New(methods map[string]*types.Type, targetMeth [][]string) *Appender {
 	a := &Appender{}
 	a.IfaceMethods = methods
 	a.TargetTypeMethods = targetMeth
@@ -62,10 +62,15 @@ func (a *Appender) Append(fileName string, at int, typeName string, ifaceName st
 	buf.WriteRune('\n')
 	buf.WriteString(fmt.Sprintf("// +iipml:%s:%s:begin\n", typeName, ifaceName))
 	txt := bytes.Buffer{}
+outer:
 	for n, v := range a.IfaceMethods {
-		if tm, ok := a.TargetTypeMethods[n]; ok {
-			txt.Write([]byte(tm))
-			continue
+		for _, brn := range a.TargetTypeMethods {
+			if strings.ReplaceAll(typeName, "*", "") == strings.ReplaceAll(brn[1], "*", "") && brn[2] == n {
+				fmt.Println(brn[0])
+				txt.WriteString(brn[0])
+				txt.WriteRune('\n')
+				continue outer
+			}
 		}
 		toRunes := []rune(strings.ToLower(typeName))
 		recver := fmt.Sprintf("func(%s %s)%s", string(toRunes[0]), typeName, n)
@@ -97,7 +102,7 @@ func (a *Appender) Append(fileName string, at int, typeName string, ifaceName st
 
 		txt.WriteString(fmt.Sprintf("%s%s%s{\n  panic(\"to be implemented\")\n}\n", recver, args.String(), result.String()))
 	}
-
+	buf.Write(txt.Bytes())
 	buf.WriteString(fmt.Sprintf("// +iipml:%s:%s:end\n", typeName, ifaceName))
 	buf.Write(after)
 	_, err = file.Seek(0, 0)

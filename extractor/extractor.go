@@ -1,7 +1,6 @@
 package extractor
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -15,7 +14,7 @@ type Extractor struct {
 	Universe          types.Universe
 	Interfaces        map[string]*types.Type
 	TargetType        *types.Type
-	TargetTypeMethods map[string]string
+	TargetTypeMethods [][]string
 }
 
 func NewExtractor(root string, targetType string, fileName string) *Extractor {
@@ -57,8 +56,7 @@ func (e *Extractor) extractTargetMethods(fileName string) error {
 	pattern := `(?m)func[\s]*\(.*?[\s](?P<recver>.*?)\)[\s]*(?P<mName>.*?)\(.*?\)[\s]*\{[\s]*.*[\s]*\}`
 	reg := regexp.MustCompile(pattern)
 	res := reg.FindAllStringSubmatch(string(content), -1)
-	for _, v := range res {
-		fmt.Printf("%s:%s:%s\n", v[0], v[1], v[2])
-	}
+
+	e.TargetTypeMethods = res
 	return nil
 }
