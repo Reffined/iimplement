@@ -49,12 +49,15 @@ func Append(fileName string, txt []byte, at int, typeName string, ifaceName stri
 	buf.Write(txt)
 	buf.WriteString(fmt.Sprintf("// +iipml:%s:%s:end\n", typeName, ifaceName))
 	buf.Write(after)
-
-	file.Truncate(0)
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return err
+	}
 	_, err = file.Write(buf.Bytes())
 	if err != nil {
 		return err
 	}
+	file.Truncate(int64(buf.Len()))
 	return nil
 }
 

@@ -83,4 +83,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	n, err := appender.FindEndOfType(goFile, t)
+	if err != nil {
+		panic(err)
+	}
+	err = appender.Append(goFile, []byte(txt.String()), n, t, iface)
+	if err != nil {
+		panic(err)
+	}
 }
