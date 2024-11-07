@@ -15,12 +15,14 @@ var (
 	root  string
 	iface string
 	t     string
+	as    string
 )
 
 func main() {
 	flag.StringVar(&root, "relPath", "", "reletive path to project's root")
 	flag.StringVar(&iface, "iface", "", "interface to implement")
 	flag.StringVar(&t, "type", "", "type to implement iface for")
+	flag.StringVar(&as, "as", "pointer", "as 'pointer' receiver or as 'value' receiver")
 	flag.Parse()
 	if root == "" {
 		fmt.Println("--relPath is required")
@@ -39,17 +41,13 @@ func main() {
 		return
 	}
 
-	appender := appender.NewAppender()
-	err := appender.Append(goFile, "Bar")
-	if err != nil {
-		panic(err)
-	}
 	ex := extractor.NewExtractor(root + "/gentest")
 	i, ok := ex.Interfaces[iface]
 	if !ok {
 		fmt.Printf("iface %s not found\n", iface)
 		return
 	}
+	txt := strings.Builder{}
 	for n, v := range i.Methods {
 		toRunes := []rune(strings.ToLower(t))
 		recver := fmt.Sprintf("func(%s %s)%s", string(toRunes[0]), t, n)
@@ -79,6 +77,12 @@ func main() {
 			result.WriteRune(')')
 		}
 
-		fmt.Printf("%s%s%s{\n  panic(\"to be implemented\")\n}\n", recver, args.String(), result.String())
+		txt.WriteString(fmt.Sprintf("%s%s%s{\n  panic(\"to be implemented\")\n}\n", recver, args.String(), result.String()))
 	}
+	res, err := appender.Append(goFile, []byte(txt.String()), t)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(string(res))
 }
