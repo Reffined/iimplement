@@ -20,7 +20,7 @@ var (
 
 func main() {
 	cmd := exec.Command("go", "env", "GOMODCACHE")
-	modCache, err := cmd.Output()
+	_, err := cmd.Output()
 	if err != nil {
 		panic(err)
 	}
