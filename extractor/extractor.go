@@ -1,9 +1,12 @@
 package extractor
 
 import (
+	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"regexp"
+	"strings"
 
 	"k8s.io/gengo/parser"
 	"k8s.io/gengo/types"
@@ -17,10 +20,12 @@ type Extractor struct {
 	TargetTypeMethods [][]string
 }
 
-func NewExtractor(root string, targetType string, fileName string) *Extractor {
+func NewExtractor(root string, modCache string, targetType string, fileName string) *Extractor {
 	ex := new(Extractor)
 	ex.Builder = parser.New()
 	ex.AddDirRecursive(root)
+	ex.AddDirRecursive(modCache)
+	ex.gatherModCacheIfaces(modCache)
 	u, err := ex.FindTypes()
 	if err != nil {
 		panic(err)
@@ -39,6 +44,7 @@ func NewExtractor(root string, targetType string, fileName string) *Extractor {
 			}
 		}
 	}
+	ex.printAllIfaces()
 	ex.extractTargetMethods(fileName)
 	return ex
 }
@@ -59,4 +65,24 @@ func (e *Extractor) extractTargetMethods(fileName string) error {
 
 	e.TargetTypeMethods = res
 	return nil
+}
+
+func (e *Extractor) printAllIfaces() {
+	for _, v := range e.Universe {
+		for _, v1 := range v.Types {
+			if v1.Kind == "Interface" {
+				fmt.Println(v1.Name)
+			}
+		}
+	}
+}
+
+func (e *Extractor) gatherModCacheIfaces(path string) {
+	dir := os.DirFS(path)
+	fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
+		dirPathParts := strings.Split(path, "/")
+		dirPath := strings.Join(dirPathParts[:len(dirPathParts)-1], "/")
+		fmt.Println(dirPath)
+		return nil
+	})
 }

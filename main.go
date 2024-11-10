@@ -26,11 +26,7 @@ func main() {
 		panic(err)
 	}
 	modTrimed := strings.TrimSpace(string(mod))
-	dir := os.DirFS(modTrimed)
-	fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
-		fmt.Println(path)
-		return nil
-	})
+
 	flag.StringVar(&root, "relPath", "", "reletive path to project's root")
 	flag.StringVar(&iface, "iface", "", "interface to implement")
 	flag.StringVar(&t, "type", "", "type to implement iface for")
@@ -52,7 +48,7 @@ func main() {
 		println("go.mod not found")
 		return
 	}
-	ex := extractor.NewExtractor(root+"/gentest", t, goFile)
+	ex := extractor.NewExtractor(root+"/gentest", modTrimed, t, goFile)
 	i, ok := ex.Interfaces[iface]
 	if !ok {
 		fmt.Printf("iface %s not found\n", iface)
