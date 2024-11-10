@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/Reffined/iimplement/appender"
 	"github.com/Reffined/iimplement/extractor"
@@ -18,6 +20,17 @@ var (
 )
 
 func main() {
+	cmd := exec.Command("go", "env", "GOMODCACHE")
+	mod, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
+	modTrimed := strings.TrimSpace(string(mod))
+	dir := os.DirFS(modTrimed)
+	fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
+		fmt.Println(path)
+		return nil
+	})
 	flag.StringVar(&root, "relPath", "", "reletive path to project's root")
 	flag.StringVar(&iface, "iface", "", "interface to implement")
 	flag.StringVar(&t, "type", "", "type to implement iface for")
@@ -46,7 +59,7 @@ func main() {
 		return
 	}
 	app := appender.New(i.Methods, ex.TargetTypeMethods)
-	err := app.DeleteLastAppend(goFile, t, iface)
+	err = app.DeleteLastAppend(goFile, t, iface)
 	if err != nil {
 		panic(err)
 	}

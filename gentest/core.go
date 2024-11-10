@@ -28,6 +28,26 @@ func (b Bar) Goo(n int) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 type (
 	IFoo interface {
 		Foo(foo string, Boo int) (int, error)
