@@ -18,6 +18,15 @@ var (
 )
 
 func main() {
+<<<<<<< HEAD
+=======
+	cmd := exec.Command("go", "env", "GOMODCACHE")
+	_, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
+
+>>>>>>> master
 	flag.StringVar(&root, "relPath", "", "reletive path to project's root")
 	flag.StringVar(&iface, "iface", "", "interface to implement")
 	flag.StringVar(&t, "type", "", "type to implement iface for")
